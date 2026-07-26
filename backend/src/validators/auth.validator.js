@@ -29,9 +29,22 @@ const signupSchema = z.object({
   password: passwordSchema,
 });
 
+const verifyEmailSchema = z.object({
+  code: z
+    .string()
+    .length(6, "Mã xác thực phải gồm 6 chữ số")
+    .regex(/^\d{6}$/, "Mã xác thực chỉ được chứa chữ số"),
+});
+
 const loginSchema = z.object({
   email: z.string().email("Email không hợp lệ"),
   password: z.string().min(1, "Mật khẩu không được để trống"),
 });
 
-export { loginSchema, nameSchema, passwordSchema, signupSchema };
+export {
+  loginSchema,
+  nameSchema,
+  passwordSchema,
+  signupSchema,
+  verifyEmailSchema,
+};

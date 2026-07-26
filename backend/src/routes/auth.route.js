@@ -1,7 +1,10 @@
 import { Router } from "express";
-import { signup } from "../controllers/auth.controller.js";
+import { signup, verifyEmail } from "../controllers/auth.controller.js";
 import validate from "../middleware/validate.js";
-import { signupSchema } from "../validators/auth.validator.js";
+import {
+  signupSchema,
+  verifyEmailSchema,
+} from "../validators/auth.validator.js";
 
 const router = Router();
 
@@ -114,5 +117,76 @@ const router = Router();
  *               message: "Lỗi server"
  */
 router.post("/signup", validate(signupSchema), signup);
+
+/**
+ * @openapi
+ * /api/v1/auth/verify-email:
+ *   post:
+ *     tags: [Auth]
+ *     summary: Xác thực tài khoản bằng mã OTP
+ *     description: |
+ *       Xác thực tài khoản người dùng bằng mã 6 chữ số được gửi qua email.
+ *
+ *       ### Validation rules:
+ *       - Mã xác thực phải gồm đúng 6 chữ số
+ *       - Mã phải còn hiệu lực (trong vòng 10 phút kể từ khi gửi)
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [code]
+ *             properties:
+ *               code:
+ *                 type: string
+ *                 description: Mã xác thực 6 chữ số
+ *                 example: "483217"
+ *           examples:
+ *             valid:
+ *               summary: Mã hợp lệ
+ *               value:
+ *                 code: "583291"
+ *     responses:
+ *       200:
+ *         description: Xác thực thành công
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Xác thực email thành công"
+ *                 user:
+ *                   $ref: '#/components/schemas/SignupResponse/properties/user'
+ *       400:
+ *         description: Mã không hợp lệ hoặc đã hết hạn
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *             examples:
+ *               invalid_code:
+ *                 summary: Mã sai
+ *                 value:
+ *                   message: "Mã xác thực không hợp lệ hoặc đã hết hạn"
+ *               wrong_format:
+ *                 summary: Sai định dạng
+ *                 value:
+ *                   message: "Dữ liệu không hợp lệ"
+ *                   errors:
+ *                     - field: "code"
+ *                       message: "Mã xác thực phải gồm 6 chữ số"
+ *       500:
+ *         description: Lỗi server
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *             example:
+ *               message: "Lỗi server"
+ */
+router.post("/verify-email", validate(verifyEmailSchema), verifyEmail);
 
 export default router;

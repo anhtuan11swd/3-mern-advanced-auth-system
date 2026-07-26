@@ -1,0 +1,13 @@
+{
+  "name": "3-mern-advanced-auth-system",
+  "version": "1.0.0",
+  "main": "backend/src/server.js",
+  "scripts": {
+    "predev": "npx kill-port 5000",
+    "dev": "nodemon backend/src/server.js",
+    "start": "node backend/src/server.js"
+  },
+  "keywords": [],
+  "author": "Trần Anh Tuấn",
+  "license": "ISC"
+}

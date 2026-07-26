@@ -41,10 +41,20 @@ const loginSchema = z.object({
   password: z.string().min(1, "Mật khẩu không được để trống"),
 });
 
+const forgotPasswordSchema = z.object({
+  email: z.string().email("Email không hợp lệ"),
+});
+
+const resetPasswordSchema = z.object({
+  password: passwordSchema,
+});
+
 export {
+  forgotPasswordSchema,
   loginSchema,
   nameSchema,
   passwordSchema,
+  resetPasswordSchema,
   signupSchema,
   verifyEmailSchema,
 };

@@ -1,7 +1,19 @@
 import { Router } from "express";
-import { signup, verifyEmail } from "../controllers/auth.controller.js";
-import validate from "../middleware/validate.js";
 import {
+  checkAuth,
+  forgotPassword,
+  login,
+  logout,
+  resetPassword,
+  signup,
+  verifyEmail,
+} from "../controllers/auth.controller.js";
+import validate from "../middleware/validate.js";
+import verifyToken from "../middleware/verifyToken.js";
+import {
+  forgotPasswordSchema,
+  loginSchema,
+  resetPasswordSchema,
   signupSchema,
   verifyEmailSchema,
 } from "../validators/auth.validator.js";
@@ -188,5 +200,139 @@ router.post("/signup", validate(signupSchema), signup);
  *               message: "Lỗi server"
  */
 router.post("/verify-email", validate(verifyEmailSchema), verifyEmail);
+
+/**
+ * @openapi
+ * /api/v1/auth/login:
+ *   post:
+ *     tags: [Auth]
+ *     summary: Đăng nhập tài khoản
+ *     description: Đăng nhập bằng email và mật khẩu. Yêu cầu tài khoản đã xác thực email.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [email, password]
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 example: nguyenvana@example.com
+ *               password:
+ *                 type: string
+ *                 format: password
+ *                 example: Abc@1234
+ *     responses:
+ *       200:
+ *         description: Đăng nhập thành công
+ *       400:
+ *         description: Sai thông tin hoặc chưa xác thực email
+ *       500:
+ *         description: Lỗi server
+ */
+router.post("/login", validate(loginSchema), login);
+
+/**
+ * @openapi
+ * /api/v1/auth/logout:
+ *   post:
+ *     tags: [Auth]
+ *     summary: Đăng xuất
+ *     description: Xóa cookie chứa JWT khỏi trình duyệt.
+ *     responses:
+ *       200:
+ *         description: Đăng xuất thành công
+ *       500:
+ *         description: Lỗi server
+ */
+router.post("/logout", logout);
+
+/**
+ * @openapi
+ * /api/v1/auth/forgot-password:
+ *   post:
+ *     tags: [Auth]
+ *     summary: Quên mật khẩu
+ *     description: Gửi email chứa link đặt lại mật khẩu tới email người dùng.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [email]
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 example: nguyenvana@example.com
+ *     responses:
+ *       200:
+ *         description: Email đặt lại mật khẩu đã được gửi
+ *       400:
+ *         description: Email không tồn tại
+ *       500:
+ *         description: Lỗi server
+ */
+router.post("/forgot-password", validate(forgotPasswordSchema), forgotPassword);
+
+/**
+ * @openapi
+ * /api/v1/auth/reset-password/{token}:
+ *   post:
+ *     tags: [Auth]
+ *     summary: Đặt lại mật khẩu
+ *     description: Đặt lại mật khẩu mới bằng token nhận từ email.
+ *     parameters:
+ *       - in: path
+ *         name: token
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Token đặt lại mật khẩu
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [password]
+ *             properties:
+ *               password:
+ *                 type: string
+ *                 format: password
+ *                 example: NewPass@123
+ *     responses:
+ *       200:
+ *         description: Đặt lại mật khẩu thành công
+ *       400:
+ *         description: Token không hợp lệ hoặc đã hết hạn
+ *       500:
+ *         description: Lỗi server
+ */
+router.post(
+  "/reset-password/:token",
+  validate(resetPasswordSchema),
+  resetPassword,
+);
+
+/**
+ * @openapi
+ * /api/v1/auth/check-auth:
+ *   get:
+ *     tags: [Auth]
+ *     summary: Kiểm tra xác thực
+ *     description: Kiểm tra token và trả về thông tin người dùng hiện tại.
+ *     responses:
+ *       200:
+ *         description: Thành công, trả về thông tin user
+ *       401:
+ *         description: Token không hợp lệ hoặc đã hết hạn
+ *       500:
+ *         description: Lỗi server
+ */
+router.get("/check-auth", verifyToken, checkAuth);
 
 export default router;

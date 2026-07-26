@@ -1,11 +1,13 @@
 {
   "name": "3-mern-advanced-auth-system",
   "version": "1.0.0",
+  "type": "module",
   "main": "backend/src/server.js",
   "scripts": {
+    "build": "npm install --prefix backend && npm install --prefix frontend && npm run build --prefix frontend",
+    "start": "node backend/src/server.js",
     "predev": "npx kill-port 5000",
-    "dev": "nodemon backend/src/server.js",
-    "start": "node backend/src/server.js"
+    "dev": "nodemon backend/src/server.js"
   },
   "keywords": [],
   "author": "Trần Anh Tuấn",
